@@ -157,7 +157,8 @@ void cpu_execute(CPU6502 *cpu, int cycles) {
                 uint8_t value = cpu_read_byte(cpu->PC++);
                 uint16_t result = cpu->A + value + cpu->P.C;
                 cpu->P.C = (result > 0xFF);
-                cpu->P.V = ((cpu->A ^ result) & (value ^ result) & 0x80) != 0;
+                // Overflow occurs when adding two same-sign numbers produces opposite sign
+                cpu->P.V = (~(cpu->A ^ value) & (cpu->A ^ result) & 0x80) != 0;
                 cpu->A = result & 0xFF;
                 set_zero_negative(cpu, cpu->A);
                 cycles -= 2;
@@ -266,7 +267,8 @@ void load_game_program(void) {
 
 /* Visualizzazione ASCII del gioco */
 void render_game(void) {
-    system("clear");  // Linux/Mac
+    // Note: system("clear") is not portable. Use ANSI escape codes or ncurses for production
+    printf("\033[2J\033[H");  // ANSI clear screen and move cursor to home
     
     int px = memory[PLAYER_X];
     int py = memory[PLAYER_Y];

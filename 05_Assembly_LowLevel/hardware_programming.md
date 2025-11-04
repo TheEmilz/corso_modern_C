@@ -534,6 +534,8 @@ int main(void) {
 #include <stdint.h>
 
 // BCM2835 Peripheral base
+// Note: Pi 2/3 = 0x3F000000, Pi 4 = 0xFE000000
+// For production code, detect at runtime or use compile flag
 #define BCM2835_PERI_BASE   0x3F000000  // Pi 2/3
 #define GPIO_BASE           (BCM2835_PERI_BASE + 0x200000)
 
@@ -573,8 +575,10 @@ static int mem_fd;
 
 int gpio_init(void) {
     // Open /dev/mem
+    // WARNING: Requires root privileges (sudo)
+    // For non-root access, consider using /sys/class/gpio interface
     if ((mem_fd = open("/dev/mem", O_RDWR | O_SYNC)) < 0) {
-        perror("Failed to open /dev/mem");
+        perror("Failed to open /dev/mem (requires root/sudo)");
         return -1;
     }
     
@@ -790,6 +794,7 @@ int read_adc_mcp3008(int channel) {
 #include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
+#include <math.h>
 #include "rpi_gpio.h"
 
 #define TEMP_SENSOR_PIN 4    // DHT22

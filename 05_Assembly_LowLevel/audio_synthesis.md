@@ -361,7 +361,7 @@ void synth_note_on(Synthesizer *synth, int note, float velocity) {
     
     float freq = note_to_freq(note);
     osc_set_frequency(&v->osc1, freq);
-    osc_set_frequency(&v->osc2, freq * 1.01f);  // Slight detune
+    osc_set_frequency(&v->osc2, freq * 1.01f);  // Detune 1% creates chorus effect, richer sound
     
     env_note_on(&v->env);
 }
@@ -651,9 +651,12 @@ void save_wav(const char *filename, float *data, int num_samples) {
     fwrite("data", 1, 4, f);
     fwrite(&data_size, 4, 1, f);
     
-    // Convert float to int16 and write
+    // Convert float to int16 and write (with clipping to prevent overflow)
     for (int i = 0; i < num_samples; i++) {
-        int16_t sample = (int16_t)(data[i] * 32767.0f);
+        float clamped = data[i];
+        if (clamped > 1.0f) clamped = 1.0f;
+        if (clamped < -1.0f) clamped = -1.0f;
+        int16_t sample = (int16_t)(clamped * 32767.0f);
         fwrite(&sample, sizeof(int16_t), 1, f);
     }
     
