@@ -2,28 +2,45 @@
 
 ## Compilazione
 
+**💡 Per una guida completa e dettagliata, consulta il [Glossario Comandi](GLOSSARIO_COMANDI.md)**
+
 ```bash
 # Compilazione base
 gcc programma.c -o programma
 
-# Con warnings
+# Con warnings (RACCOMANDATO per sviluppo)
 gcc -Wall -Wextra programma.c -o programma
 
-# Con debugging
+# Con debugging (per usare GDB)
 gcc -g programma.c -o programma
 
-# Con ottimizzazione
+# Con ottimizzazione (per produzione)
 gcc -O2 programma.c -o programma
 
-# Specifica standard C
+# Specifica standard C (RACCOMANDATO)
 gcc -std=c11 programma.c -o programma
 
-# Link con librerie matematiche
+# Link con librerie matematiche (per sqrt, sin, cos, ecc.)
 gcc programma.c -o programma -lm
 
-# Link con pthread
+# Link con pthread (per multi-threading)
 gcc programma.c -o programma -lpthread
+
+# Combinazione completa per sviluppo
+gcc -Wall -Wextra -std=c11 -g programma.c -o programma
+
+# Combinazione per produzione
+gcc -Wall -Wextra -std=c11 -O2 -DNDEBUG programma.c -o programma
 ```
+
+**Spiegazione opzioni comuni:**
+- `-Wall`: Abilita warning comuni
+- `-Wextra`: Abilita warning aggiuntivi
+- `-g`: Include informazioni di debug
+- `-O2`: Ottimizzazione livello 2
+- `-std=c11`: Usa standard C11
+- `-o nome`: Specifica nome output
+- `-lm`: Linka libreria matematica
 
 ## Tipi di Dati
 
