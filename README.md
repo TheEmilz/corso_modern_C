@@ -9,6 +9,16 @@ Benvenuti al corso completo di programmazione C, che copre dalla teoria di base 
 - **[Glossario Comandi](GLOSSARIO_COMANDI.md)** - Guida completa alla compilazione e ai comandi GCC
 - **[Quick Reference](QUICK_REFERENCE.md)** - Riferimento rapido della sintassi C
 
+### [00 - Preparazione: Algoritmi e Strutture Dati](00_Preparazione/)
+**NUOVO! Modulo preparatorio da studiare prima del C**
+- Pensiero computazionale e problem solving
+- Analisi della complessità degli algoritmi
+- Algoritmi di ricerca e ordinamento
+- Strutture dati fondamentali (array, liste, stack, queue, alberi, hash table)
+- Ricorsione e tecniche algoritmiche
+- **Metodologia di debug sistematico**
+- Esercizi progressivi con soluzioni guidate
+
 ### [01 - Introduzione](01_Introduzione/)
 - Storia del linguaggio C
 - Evoluzione e standard (K&R, ANSI C, C99, C11, C17, C23)
@@ -70,6 +80,17 @@ Benvenuti al corso completo di programmazione C, che copre dalla teoria di base 
 - Esercizi avanzati
 - Progetti finali
 
+### [09 - C e Database](09_Database/)
+**NUOVO! Programmazione database con C**
+- Integrazione SQLite in applicazioni C
+- Operazioni CRUD (Create, Read, Update, Delete) complete
+- Prepared statements e sicurezza SQL
+- Transazioni e gestione errori robusta
+- Query avanzate e JOIN
+- Ottimizzazione e indici
+- **Progetti completi**: Sistema biblioteca e gestionale negozio
+- **Debug database**: Problemi comuni e soluzioni
+
 ## 🎯 Obiettivi del Corso
 
 Alla fine di questo corso sarai in grado di:
@@ -89,11 +110,23 @@ Alla fine di questo corso sarai in grado di:
 
 ## 📖 Come Usare Questo Corso
 
+### Percorso Consigliato per Principianti Assoluti
+
+1. **Inizia dal Modulo 00** - Preparazione: Costruisci le fondamenta algoritmiche
+2. **Passa al Modulo 01-02** - Impara la sintassi base del C
+3. **Continua con Moduli 03-04** - Approfondisci concetti intermedi e avanzati
+4. **Esplora Moduli 05-06** - Assembly e confronti con altri linguaggi
+5. **Pratica con Moduli 07-08** - Laboratori ed esercizi
+6. **Specializzati con Modulo 09** - Database e applicazioni reali
+
+### Best Practices
+
 1. Segui i moduli in ordine sequenziale
 2. Compila ed esegui tutti gli esempi
-3. Completa gli esercizi di ogni sezione
-4. Costruisci i progetti nei mini laboratori
-5. Sperimenta e modifica il codice
+3. **Fai debug attivo** - Non limitarti a leggere, sperimenta!
+4. Completa gli esercizi di ogni sezione
+5. Costruisci i progetti nei mini laboratori
+6. Sperimenta e modifica il codice
 
 ## 📝 Licenza
 
