@@ -27,7 +27,7 @@ I linguaggi C e C++ sono notoriamente vulnerabili a errori di memoria che causan
 - **Double free**: deallocazione multipla della stessa memoria
 - **Type confusion**: violazioni della sicurezza dei tipi
 
-Questi bug non sono solo errori di programmazione, ma rappresentano la base di molti exploit di sicurezza critici. Secondo studi recenti, oltre il 70% delle vulnerabilità nei software di sistema derivano da problemi di memory safety.
+Questi bug non sono solo errori di programmazione, ma rappresentano la base di molti exploit di sicurezza critici. Secondo studi di Microsoft e Google, oltre il 70% delle vulnerabilità nei software di sistema derivano da problemi di memory safety (vedi "SoK: Eternal War in Memory" per analisi dettagliata).
 
 
 ### La Soluzione di Fil-C
@@ -1035,7 +1035,7 @@ Fil-C dimostra che è possibile ottenere memory safety completa mantenendo alta 
 La ricerca continua a evolversi, con futuri miglioramenti previsti per:
 - Generational garbage collection per ridurre pause
 - Ottimizzazioni guidate da profile
-- Support hardware-accelerated (es. integrazione con CHERI)
+- Supporto hardware-accelerated (es. integrazione con CHERI)
 - Riduzione ulteriore dell'overhead
 
 Fil-C non è solo uno strumento pratico, ma anche una dimostrazione di concetti teorici avanzati applicati al mondo reale, rendendo il C sicuro senza sacrificarne la potenza e flessibilità.
