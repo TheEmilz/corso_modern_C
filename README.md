@@ -5,19 +5,27 @@ Benvenuti al corso completo di programmazione C, che copre dalla teoria di base 
 
 ## 📚 Struttura del Corso
 
+### 📘 Risorse Fondamentali
+- **[Glossario Comandi](GLOSSARIO_COMANDI.md)** - Guida completa alla compilazione e ai comandi GCC
+- **[Quick Reference](QUICK_REFERENCE.md)** - Riferimento rapido della sintassi C
+
 ### [01 - Introduzione](01_Introduzione/)
 - Storia del linguaggio C
 - Evoluzione e standard (K&R, ANSI C, C99, C11, C17, C23)
 - Perché imparare C oggi
 - Setup ambiente di sviluppo
+- Spiegazione dettagliata del primo programma
+- Debug con GDB passo-passo
 
 ### [02 - Fondamenti](02_Fondamenti/)
 - Sintassi di base
-- Tipi di dati e variabili
-- Operatori e espressioni
-- Strutture di controllo
-- Funzioni
-- Array e stringhe
+- Tipi di dati e variabili con spiegazioni dettagliate
+- Operatori aritmetici con esempi pratici
+- Strutture di controllo annotate
+- Funzioni con esempi completi
+- Array e stringhe con diagrammi di memoria
+- Esempi pratici completi e commentati
+- Esercizi con soluzioni step-by-step
 
 ### [03 - Livello Intermedio](03_Intermedio/)
 - Puntatori e riferimenti

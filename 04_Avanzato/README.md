@@ -4,6 +4,8 @@
 
 ### Array di Puntatori vs Puntatori ad Array
 
+Questa è una delle distinzioni più confuse in C. Vediamo la differenza con diagrammi dettagliati.
+
 ```c
 #include <stdio.h>
 
@@ -43,7 +45,263 @@ int main(void)
 }
 ```
 
+#### Spiegazione Dettagliata
+
+**1. Array di Puntatori: `int *array_of_ptrs[3]`**
+
+**Dichiarazione analizzata:**
+```c
+int *array_of_ptrs[3];
+```
+
+**Come leggere la dichiarazione (da destra a sinistra):**
+1. `array_of_ptrs[3]`: È un array di 3 elementi
+2. `*`: Ogni elemento è un puntatore
+3. `int`: Ogni puntatore punta a un int
+
+**Quindi:** "array_of_ptrs è un array di 3 puntatori a int"
+
+**Diagramma di memoria:**
+```
+a @ 0x1000:  [1]
+b @ 0x1004:  [2]
+c @ 0x1008:  [3]
+
+array_of_ptrs:
+┌─────────┬─────────┬─────────┐
+│ 0x1000  │ 0x1004  │ 0x1008  │  ← Array di 3 indirizzi
+└────┬────┴────┬────┴────┬────┘
+     │         │         │
+     ▼         ▼         ▼
+    [1]       [2]       [3]
+```
+
+**Memoria effettiva:**
+```
+0x2000: array_of_ptrs[0] = 0x1000  →  punta a 'a' (valore 1)
+0x2008: array_of_ptrs[1] = 0x1004  →  punta a 'b' (valore 2)
+0x2010: array_of_ptrs[2] = 0x1008  →  punta a 'c' (valore 3)
+```
+
+**Accesso:**
+```c
+array_of_ptrs[0]     // Valore: 0x1000 (indirizzo di a)
+*array_of_ptrs[0]    // Valore: 1 (valore di a)
+array_of_ptrs[1]     // Valore: 0x1004 (indirizzo di b)
+*array_of_ptrs[1]    // Valore: 2 (valore di b)
+```
+
+**Dimensione in memoria:**
+- Su sistema a 64 bit: 3 puntatori × 8 byte = 24 byte
+- Su sistema a 32 bit: 3 puntatori × 4 byte = 12 byte
+
+**Uso tipico:**
+```c
+// Array di stringhe
+char *nomi[3] = {"Alice", "Bob", "Charlie"};
+
+// Array di funzioni (callback)
+void (*funzioni[3])(void) = {func1, func2, func3};
+```
+
+**2. Puntatore ad Array: `int (*ptr_to_array)[3]`**
+
+**Dichiarazione analizzata:**
+```c
+int (*ptr_to_array)[3];
+```
+
+**Come leggere (le parentesi sono cruciali!):**
+1. `(*ptr_to_array)`: ptr_to_array è un puntatore
+2. `[3]`: Punta a un array di 3 elementi
+3. `int`: Gli elementi sono int
+
+**Quindi:** "ptr_to_array è un puntatore a un array di 3 int"
+
+**Diagramma di memoria:**
+```
+arr @ 0x3000:
+┌────┬────┬────┐
+│ 10 │ 20 │ 30 │  ← Array di 3 int contigui
+└────┴────┴────┘
+
+ptr_to_array @ 0x4000:
+┌──────────┐
+│ 0x3000   │─────────────┐
+└──────────┘             │
+                         ▼
+                    ┌────┬────┬────┐
+                    │ 10 │ 20 │ 30 │
+                    └────┴────┴────┘
+```
+
+**Differenza chiave:**
+```c
+int *p = arr;              // p punta al PRIMO ELEMENTO (arr[0])
+int (*pa)[3] = &arr;       // pa punta all'INTERO ARRAY
+```
+
+**Aritmetica dei puntatori:**
+```c
+int arr1[3] = {10, 20, 30};
+int arr2[3] = {40, 50, 60};
+
+int *p = arr1;             // p punta a arr1[0]
+p++;                       // p avanza di 1 int (4 byte) → punta a arr1[1]
+
+int (*pa)[3] = &arr1;      // pa punta all'intero array arr1
+pa++;                      // pa avanza di 1 array (12 byte) → punta a arr2
+```
+
+**Diagramma aritmetica:**
+```
+arr1:  [10][20][30]    arr2:  [40][50][60]
+       ▲                      ▲
+       │                      │
+       pa                     pa++
+    (0x3000)               (0x300C = 0x3000 + 12)
+```
+
+**3. Array Multidimensionale e Puntatori**
+
+**Dichiarazione:**
+```c
+int matrix[2][3] = {{1, 2, 3}, {4, 5, 6}};
+int (*ptr_to_matrix)[3] = matrix;
+```
+
+**Memoria della matrice:**
+```
+matrix @ 0x5000:
+Riga 0: [1][2][3]
+Riga 1: [4][5][6]
+
+Layout lineare in memoria:
+0x5000: 1
+0x5004: 2
+0x5008: 3
+0x500C: 4
+0x5010: 5
+0x5014: 6
+```
+
+**Rappresentazione:**
+```
+matrix        ← Decade a puntatore alla prima riga
+│
+▼
+┌───┬───┬───┐
+│ 1 │ 2 │ 3 │  ← matrix[0] o *matrix
+├───┼───┼───┤
+│ 4 │ 5 │ 6 │  ← matrix[1] o *(matrix+1)
+└───┴───┴───┘
+```
+
+**Tipo di `matrix`:**
+- `matrix`: Tipo `int (*)[3]` (puntatore ad array di 3 int)
+- `matrix[0]`: Tipo `int *` (puntatore a int)
+- `matrix[0][0]`: Tipo `int` (int singolo)
+
+**Equivalenze:**
+```c
+matrix[i][j]           // Notazione array standard
+(*(matrix + i))[j]     // Parzialmente espansa
+*(*(matrix + i) + j)   // Completamente espansa
+```
+
+**Passo per passo per `matrix[1][2]`:**
+```c
+matrix[1][2]
+= (*(matrix + 1))[2]     // Sostituisci matrix[1]
+= *(*(matrix + 1) + 2)   // Sostituisci [2]
+```
+
+**Calcolo indirizzi:**
+1. `matrix` → 0x5000 (indirizzo riga 0)
+2. `matrix + 1` → 0x500C (0x5000 + 1×12 byte) (indirizzo riga 1)
+3. `*(matrix + 1)` → Dereferenzia, ottieni puntatore al primo elemento della riga 1
+4. `*(matrix + 1) + 2` → 0x5014 (0x500C + 2×4 byte)
+5. `*(*(matrix + 1) + 2)` → Valore a 0x5014 → 6
+
+#### Confronto Visivo Completo
+
+**Sintassi:**
+```c
+int *arr[3];        // Array di puntatori
+int (*ptr)[3];      // Puntatore ad array
+```
+
+**Regola mnemonica:**
+- `[]` ha precedenza su `*`
+- Usa `()` per cambiare la precedenza
+
+**Esempi di precedenza:**
+```c
+int *p[5];          // [] prima → array DI puntatori
+int (*p)[5];        // () prima → puntatore A array
+int *(*p)[5];       // Puntatore a (array di puntatori)
+int (*p[5])[3];     // Array di (puntatori ad array)
+```
+
+#### Esempio Pratico: Argomenti della Linea di Comando
+
+```c
+#include <stdio.h>
+
+/* main riceve un array di puntatori a char (stringhe) */
+int main(int argc, char *argv[])  // o: char **argv
+{
+    printf("Numero di argomenti: %d\n", argc);
+    
+    /* argv è un array di puntatori */
+    for (int i = 0; i < argc; i++) {
+        printf("argv[%d] = %s\n", i, argv[i]);
+    }
+    
+    /* Dimostra che argv è array di puntatori */
+    printf("\nIndirizzi:\n");
+    for (int i = 0; i < argc; i++) {
+        printf("argv[%d] si trova a: %p\n", i, (void*)argv[i]);
+    }
+    
+    return 0;
+}
+```
+
+**Esecuzione:**
+```bash
+$ ./program hello world
+Numero di argomenti: 3
+argv[0] = ./program
+argv[1] = hello
+argv[2] = world
+
+Indirizzi:
+argv[0] si trova a: 0x7ffc1234abcd
+argv[1] si trova a: 0x7ffc1234abd8
+argv[2] si trova a: 0x7ffc1234abe0
+```
+
+**Memoria di argv:**
+```
+argv:
+┌──────┬──────┬──────┬──────┐
+│ ptr0 │ ptr1 │ ptr2 │ NULL │  ← Array di puntatori
+└──┬───┴──┬───┴──┬───┴──────┘
+   │      │      │
+   ▼      ▼      ▼
+"./program" "hello" "world"
+```
+
+**Compilazione e test:**
+```bash
+gcc -Wall -Wextra puntatori_avanzati.c -o puntatori_avanzati
+./puntatori_avanzati arg1 arg2
+```
+
 ### Puntatori Const
+
+I puntatori const sono fondamentali per scrivere codice sicuro e prevenire modifiche accidentali.
 
 ```c
 #include <stdio.h>
@@ -78,6 +336,331 @@ int main(void)
     
     return 0;
 }
+```
+
+#### Spiegazione Dettagliata dei 3 Tipi di Const
+
+**Tipo 1: Puntatore a Const (Pointer to Const)**
+
+**Sintassi:**
+```c
+const int *ptr1 = &x;
+// Equivalente a:
+int const *ptr1 = &x;
+```
+
+**Diagramma:**
+```
+     ptr1                     x
+   ┌──────┐               ┌──────┐
+   │ addr │──────────────>│  10  │  ← NON modificabile tramite ptr1
+   └──────┘               └──────┘
+   
+   Modificabile           Valore protetto
+```
+
+**Cosa puoi fare:**
+```c
+ptr1 = &y;     // ✅ OK: cambia dove punta ptr1
+printf("%d", *ptr1);  // ✅ OK: leggi il valore
+```
+
+**Cosa NON puoi fare:**
+```c
+*ptr1 = 100;   // ❌ ERRORE: non puoi modificare il valore tramite ptr1
+```
+
+**Nota importante:**
+```c
+const int *ptr = &x;
+*ptr = 100;    // ERRORE di compilazione
+x = 100;       // OK! x non è const, solo l'accesso tramite ptr è const
+```
+
+**Uso tipico: Parametri funzione read-only**
+```c
+void stampa_array(const int *arr, int size)
+{
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);    // ✅ Lettura OK
+        // arr[i] = 0;            // ❌ ERRORE: non puoi modificare
+    }
+}
+```
+
+**Vantaggi:**
+- Previene modifiche accidentali
+- Documenta l'intento (funzione non modifica i dati)
+- Permette al compilatore di ottimizzare
+- Permette di passare array const
+
+**Tipo 2: Puntatore Const (Const Pointer)**
+
+**Sintassi:**
+```c
+int *const ptr2 = &x;
+```
+
+**Diagramma:**
+```
+     ptr2 (FISSO)            x
+   ┌──────┐               ┌──────┐
+   │ addr │──────────────>│  10  │  ← Modificabile tramite ptr2
+   └──────┘               └──────┘
+   
+   NON modificabile       Valore modificabile
+   (come riferimento C++)
+```
+
+**Cosa puoi fare:**
+```c
+*ptr2 = 100;   // ✅ OK: modifica il valore puntato
+printf("%d", *ptr2);  // ✅ OK: leggi il valore
+```
+
+**Cosa NON puoi fare:**
+```c
+ptr2 = &y;     // ❌ ERRORE: non puoi cambiare dove punta ptr2
+ptr2++;        // ❌ ERRORE: non puoi muovere il puntatore
+```
+
+**Uso tipico: Puntatore che non deve mai cambiare target**
+```c
+struct Config {
+    int value;
+};
+
+void process(struct Config *const config)
+{
+    config->value = 42;    // ✅ OK: modifica contenuto
+    // config = NULL;      // ❌ ERRORE: non puoi cambiare puntatore
+}
+```
+
+**Analogia:**
+- Come un riferimento C++ o `final` in Java
+- Il puntatore è "bloccato" a una variabile specifica
+
+**Tipo 3: Puntatore Const a Const (Const Pointer to Const)**
+
+**Sintassi:**
+```c
+const int *const ptr3 = &x;
+```
+
+**Diagramma:**
+```
+     ptr3 (FISSO)            x
+   ┌──────┐               ┌──────┐
+   │ addr │──────────────>│  10  │  ← Protetto
+   └──────┘               └──────┘
+   
+   NON modificabile       NON modificabile tramite ptr3
+   (massima protezione)
+```
+
+**Cosa puoi fare:**
+```c
+printf("%d", *ptr3);  // ✅ OK: solo lettura
+```
+
+**Cosa NON puoi fare:**
+```c
+*ptr3 = 100;   // ❌ ERRORE: non puoi modificare il valore
+ptr3 = &y;     // ❌ ERRORE: non puoi cambiare dove punta
+ptr3++;        // ❌ ERRORE: non puoi muovere il puntatore
+```
+
+**Uso tipico: Costanti immutabili**
+```c
+const int DAYS_VALUE = 7;
+const int *const DAYS_IN_WEEK = &DAYS_VALUE;
+
+void func(const char *const message)
+{
+    // message è completamente read-only
+    printf("%s", message);
+}
+```
+
+#### Tabella di Confronto Completa
+
+| Dichiarazione | Puntatore Modificabile? | Valore Modificabile? | Nome |
+|---------------|------------------------|---------------------|------|
+| `int *ptr` | ✅ Sì | ✅ Sì | Puntatore normale |
+| `const int *ptr` | ✅ Sì | ❌ No | Puntatore a const |
+| `int *const ptr` | ❌ No | ✅ Sì | Puntatore const |
+| `const int *const ptr` | ❌ No | ❌ No | Puntatore const a const |
+
+#### Regola di Lettura: Spirale Clockwise/Right-Left
+
+**Tecnica: Leggi da destra a sinistra, saltando quando trovi `*`**
+
+**Esempio 1:**
+```c
+const int *ptr;
+```
+Lettura: `ptr` → `*` (è un puntatore a) → `int` → `const` (int costante)
+**Risultato:** "ptr è un puntatore a int const"
+
+**Esempio 2:**
+```c
+int *const ptr;
+```
+Lettura: `ptr` → `const` (è const) → `*` (puntatore a) → `int`
+**Risultato:** "ptr è un puntatore const a int"
+
+**Esempio 3:**
+```c
+const int *const ptr;
+```
+Lettura: `ptr` → `const` (è const) → `*` (puntatore a) → `int const`
+**Risultato:** "ptr è un puntatore const a int const"
+
+#### Posizione di `const` - Due Sintassi Equivalenti
+
+```c
+/* Queste due sono IDENTICHE: */
+const int *ptr;    // Più comune
+int const *ptr;    // Meno comune ma valida
+
+/* Entrambe significano: "ptr è un puntatore a int const" */
+```
+
+**Regola pratica:**
+- `const` prima del tipo o dopo il tipo: protegge il VALORE
+- `const` dopo `*`: protegge il PUNTATORE
+
+#### Esempio Pratico: Funzioni con Const Correttezza
+
+```c
+#include <stdio.h>
+#include <string.h>
+
+/* Buona pratica: parametri read-only con const */
+size_t mia_strlen(const char *str)
+{
+    const char *ptr = str;  // ptr è puntatore a char const
+    
+    while (*ptr != '\0') {
+        ptr++;    // OK: possiamo muovere il puntatore
+        // *ptr = 'X';  // ERRORE: non possiamo modificare
+    }
+    
+    return ptr - str;
+}
+
+/* Funzione che modifica il contenuto */
+void to_uppercase(char *str)  // NON const: modifica permessa
+{
+    while (*str) {
+        if (*str >= 'a' && *str <= 'z') {
+            *str = *str - 32;  // OK: str non è const
+        }
+        str++;
+    }
+}
+
+/* Versione const-corretta di strcpy */
+char *mia_strcpy(char *dest, const char *src)
+{
+    char *original_dest = dest;  // Salva l'indirizzo iniziale
+    
+    while (*src != '\0') {
+        *dest = *src;  // OK: dest non è const, src è const
+        dest++;
+        src++;
+    }
+    *dest = '\0';
+    
+    return original_dest;
+}
+
+int main(void)
+{
+    const char *message = "Hello";  // Stringa letterale (const)
+    char buffer[50] = "test";
+    
+    /* OK: mia_strlen non modifica */
+    printf("Lunghezza: %zu\n", mia_strlen(message));
+    
+    /* OK: buffer non è const */
+    to_uppercase(buffer);
+    printf("Maiuscolo: %s\n", buffer);
+    
+    /* OK: dest non const, src const */
+    char dest[50];
+    mia_strcpy(dest, message);
+    printf("Copiato: %s\n", dest);
+    
+    return 0;
+}
+```
+
+#### Conversioni di Const: Cosa è Permesso
+
+**✅ Conversioni VALIDE (aggiungere const):**
+```c
+int x = 10;
+int *p = &x;
+
+const int *cp = p;        // OK: aggiungi const
+const int *cp2 = &x;      // OK: aggiungi const
+```
+
+**❌ Conversioni NON VALIDE (rimuovere const):**
+```c
+const int cx = 10;
+const int *cp = &cx;
+
+int *p = cp;              // ERRORE: rimuovi const (warning)
+int *p2 = &cx;            // ERRORE: rimuovi const (warning)
+```
+
+**⚠️ Cast esplicito (pericoloso!):**
+```c
+const int cx = 10;
+int *p = (int *)&cx;      // Compila ma COMPORTAMENTO INDEFINITO!
+*p = 20;                  // Potrebbe crashare o dare risultati strani
+```
+
+#### Best Practices con Const
+
+**1. Usa const per parametri read-only:**
+```c
+// ✅ Buono
+void process(const Data *data);
+
+// ❌ Cattivo (manca const)
+void process(Data *data);  // Implica che data può essere modificato
+```
+
+**2. Restituisci const per prevenire modifiche:**
+```c
+// ✅ Buono
+const char *get_name(void);
+
+// L'utente non può fare:
+char *name = get_name();
+name[0] = 'X';  // Warning: assegnamento da const a non-const
+```
+
+**3. Const in struct:**
+```c
+typedef struct {
+    const int id;           // id immutabile dopo inizializzazione
+    char name[50];
+} Person;
+
+Person p = {1, "Alice"};
+// p.id = 2;                // ERRORE: id è const
+strcpy(p.name, "Bob");     // OK: name non è const
+```
+
+**Compilazione e test:**
+```bash
+gcc -Wall -Wextra const_pointers.c -o const_pointers
+./const_pointers
 ```
 
 ### Puntatori Void e Casting
