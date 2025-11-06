@@ -6,6 +6,13 @@
 
 I puntatori sono uno degli aspetti più potenti e più pericolosi del linguaggio C. Un puntatore è una variabile che contiene l'indirizzo di memoria di un'altra variabile.
 
+**Perché i puntatori sono importanti:**
+- Permettono l'allocazione dinamica della memoria
+- Consentono passaggio per riferimento alle funzioni
+- Permettono di creare strutture dati complesse (liste, alberi, grafi)
+- Essenziali per lavorare con stringhe e array
+- Fondamentali per comprendere come funziona la memoria
+
 ```c
 #include <stdio.h>
 
@@ -29,7 +36,231 @@ int main(void)
 }
 ```
 
+#### Spiegazione Dettagliata con Diagramma di Memoria
+
+**Dichiarazione e inizializzazione:**
+```c
+int x = 42;
+int *ptr;
+ptr = &x;
+```
+
+**Rappresentazione in memoria:**
+```
+Variabile    Indirizzo    Valore
+────────────────────────────────
+x            0x1000       42
+ptr          0x2000       0x1000  (indirizzo di x)
+```
+
+**Spiegazione visiva:**
+```
+     ptr                    x
+   ┌──────┐              ┌──────┐
+   │0x1000│─────────────>│  42  │
+   └──────┘              └──────┘
+   0x2000                0x1000
+```
+
+**Analisi linea per linea:**
+
+1. **`int x = 42;`**
+   - Crea una variabile intera `x` in memoria
+   - Assegna il valore 42
+   - Il sistema operativo alloca 4 byte (su sistemi a 32/64 bit)
+   - Supponiamo che `x` sia all'indirizzo 0x1000
+
+2. **`int *ptr;`**
+   - Dichiara un puntatore a intero
+   - `int *`: Significa "puntatore a int"
+   - `ptr` può contenere l'indirizzo di una variabile `int`
+   - Inizialmente contiene un valore casuale (garbage) - NON usarlo prima di inizializzarlo!
+
+3. **`ptr = &x;`**
+   - `&x`: Operatore "address-of" - ottiene l'indirizzo di `x`
+   - Assegna l'indirizzo di `x` a `ptr`
+   - Ora `ptr` "punta a" `x`
+
+4. **`printf("Valore di x: %d\n", x);`**
+   - Accesso diretto a `x`
+   - Output: `Valore di x: 42`
+
+5. **`printf("Indirizzo di x: %p\n", (void*)&x);`**
+   - `%p`: Format specifier per puntatore
+   - `&x`: Indirizzo di x
+   - `(void*)`: Cast a void pointer (convenzione per `%p`)
+   - Output: `Indirizzo di x: 0x1000` (esempio)
+
+6. **`printf("Valore di ptr: %p\n", (void*)ptr);`**
+   - Stampa il valore contenuto in `ptr` (che è un indirizzo)
+   - Output: `Valore di ptr: 0x1000` (stesso di `&x`)
+
+7. **`printf("Valore puntato da ptr: %d\n", *ptr);`**
+   - `*ptr`: Operatore di dereferenziazione
+   - "Vai all'indirizzo contenuto in `ptr` e leggi il valore"
+   - Equivalente a leggere `x`
+   - Output: `Valore puntato da ptr: 42`
+
+8. **`*ptr = 100;`**
+   - Dereferenzia `ptr` e assegna 100
+   - Modifica il valore all'indirizzo puntato
+   - Poiché `ptr` punta a `x`, modifica `x`!
+
+9. **`printf("Nuovo valore di x: %d\n", x);`**
+   - `x` ora vale 100 (modificato tramite `ptr`)
+   - Output: `Nuovo valore di x: 100`
+
+**Diagramma "prima e dopo":**
+
+**PRIMA di `*ptr = 100;`:**
+```
+     ptr                    x
+   ┌──────┐              ┌──────┐
+   │0x1000│─────────────>│  42  │
+   └──────┘              └──────┘
+```
+
+**DOPO `*ptr = 100;`:**
+```
+     ptr                    x
+   ┌──────┐              ┌──────┐
+   │0x1000│─────────────>│ 100  │
+   └──────┘              └──────┘
+```
+
+#### Due Operatori Fondamentali
+
+**Operatore `&` (Address-of):**
+- Ottiene l'indirizzo di una variabile
+- `&variabile` → indirizzo della variabile
+- Esempio: Se `x` è a 0x1000, allora `&x` è 0x1000
+
+**Operatore `*` (Dereferenziazione):**
+- Accede al valore all'indirizzo puntato
+- `*puntatore` → valore all'indirizzo contenuto nel puntatore
+- Due usi diversi:
+  1. **Dichiarazione**: `int *ptr;` (dichiara un puntatore)
+  2. **Dereferenziazione**: `*ptr = 100;` (accede/modifica il valore puntato)
+
+#### Esempio Pratico: Scambio di Valori
+
+**Versione SBAGLIATA (senza puntatori):**
+```c
+#include <stdio.h>
+
+void swap_sbagliato(int a, int b)
+{
+    int temp = a;
+    a = b;
+    b = temp;
+    
+    printf("Dentro funzione: a=%d, b=%d\n", a, b);
+}
+
+int main(void)
+{
+    int x = 5, y = 10;
+    
+    printf("Prima: x=%d, y=%d\n", x, y);
+    swap_sbagliato(x, y);
+    printf("Dopo: x=%d, y=%d\n", x, y);  // NON cambiati!
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Prima: x=5, y=10
+Dentro funzione: a=10, b=5
+Dopo: x=5, y=10
+```
+
+**Perché non funziona?**
+- `swap_sbagliato` riceve **copie** di x e y
+- Modifica le copie, non gli originali
+- Le copie vengono distrutte al return
+
+**Diagramma dello stack:**
+```
+Stack durante swap_sbagliato:
+┌─────────────┐
+│ temp = 5    │  ← variabili locali di swap_sbagliato
+│ a = 10      │  ← copia di x
+│ b = 5       │  ← copia di y
+├─────────────┤
+│ x = 5       │  ← variabili di main (NON modificate!)
+│ y = 10      │
+└─────────────┘
+```
+
+**Versione CORRETTA (con puntatori):**
+```c
+#include <stdio.h>
+
+void swap_corretto(int *a, int *b)
+{
+    int temp = *a;  // Leggi valore puntato da a
+    *a = *b;        // Scrivi in a il valore puntato da b
+    *b = temp;      // Scrivi in b il valore temporaneo
+    
+    printf("Dentro funzione: *a=%d, *b=%d\n", *a, *b);
+}
+
+int main(void)
+{
+    int x = 5, y = 10;
+    
+    printf("Prima: x=%d, y=%d\n", x, y);
+    swap_corretto(&x, &y);  // Passa gli INDIRIZZI
+    printf("Dopo: x=%d, y=%d\n", x, y);  // Cambiati!
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Prima: x=5, y=10
+Dentro funzione: *a=10, *b=5
+Dopo: x=10, y=5
+```
+
+**Diagramma dello stack:**
+```
+Stack durante swap_corretto:
+┌─────────────┐
+│ temp = 5    │
+│ a = 0x1000  │──┐
+│ b = 0x1004  │──┼──┐
+├─────────────┤  │  │
+│ x = 5       │<─┘  │  ← modificato tramite *a
+│ y = 10      │<────┘  ← modificato tramite *b
+└─────────────┘
+   0x1000  0x1004
+```
+
+**Passo per passo in swap_corretto:**
+1. `int temp = *a;`
+   - `*a` legge il valore dove punta `a` (x = 5)
+   - `temp = 5`
+
+2. `*a = *b;`
+   - `*b` legge il valore dove punta `b` (y = 10)
+   - `*a = 10` scrive 10 dove punta `a` (x diventa 10)
+
+3. `*b = temp;`
+   - `*b = 5` scrive 5 dove punta `b` (y diventa 5)
+
+**Compilazione e test:**
+```bash
+gcc -Wall -Wextra puntatori_intro.c -o puntatori
+./puntatori
+```
+
 ### Aritmetica dei Puntatori
+
+L'aritmetica dei puntatori permette di navigare attraverso la memoria in modo efficiente, specialmente con gli array.
 
 ```c
 #include <stdio.h>
@@ -62,6 +293,261 @@ int main(void)
     
     return 0;
 }
+```
+
+#### Spiegazione Dettagliata dell'Aritmetica dei Puntatori
+
+**Concetto fondamentale:**
+Quando fai `ptr + 1`, NON aggiungi 1 byte, ma 1 elemento del tipo puntato!
+
+**Array in memoria:**
+```c
+int arr[] = {10, 20, 30, 40, 50};
+```
+
+**Rappresentazione in memoria:**
+```
+Indirizzo    Valore    Espressione       Array notation
+───────────────────────────────────────────────────────
+0x1000       10        *arr o *(arr+0)   arr[0]
+0x1004       20        *(arr+1)          arr[1]
+0x1008       30        *(arr+2)          arr[2]
+0x100C       40        *(arr+3)          arr[3]
+0x1010       50        *(arr+4)          arr[4]
+```
+
+**Diagramma visivo:**
+```
+arr ────┐
+        │
+        ▼
+┌────┬────┬────┬────┬────┐
+│ 10 │ 20 │ 30 │ 40 │ 50 │
+└────┴────┴────┴────┴────┘
+ arr  +1   +2   +3   +4
+0x1000    0x1004    0x1008
+```
+
+**`int *ptr = arr;`**
+- `arr` decade a puntatore al primo elemento
+- Equivalente a: `int *ptr = &arr[0];`
+- `ptr` ora contiene 0x1000 (indirizzo di arr[0])
+
+**`*ptr` (dereferenzia ptr):**
+- Legge il valore all'indirizzo contenuto in `ptr`
+- `*ptr` → valore a 0x1000 → 10
+
+**`*(ptr+1)` (aritmetica + dereferenziazione):**
+- `ptr+1`: Calcola indirizzo dell'elemento successivo
+- `ptr` è di tipo `int*`, quindi `ptr+1` = 0x1000 + sizeof(int) = 0x1000 + 4 = 0x1004
+- `*(ptr+1)`: Legge il valore a 0x1004 → 20
+- **Equivalente a**: `arr[1]`
+
+**Regola generale:**
+```c
+ptr + n  →  (indirizzo_base + n * sizeof(tipo))
+```
+
+**Tabella di equivalenze:**
+```c
+Pointer Notation    Array Notation    Valore
+────────────────────────────────────────────
+*arr                arr[0]            10
+*(arr+1)            arr[1]            20
+*(arr+2)            arr[2]            30
+*(arr+i)            arr[i]            arr[i]
+```
+
+**Iterazione con puntatori:**
+```c
+for (int *p = arr; p < arr + 5; p++) {
+    printf("%d ", *p);
+}
+```
+
+**Passo per passo:**
+1. **Inizializzazione**: `p = arr` (p punta al primo elemento)
+2. **Condizione**: `p < arr + 5` (p non ha superato l'ultimo elemento)
+3. **Corpo**: `printf("%d ", *p)` (stampa valore puntato)
+4. **Incremento**: `p++` (p avanza al prossimo elemento)
+
+**Diagramma delle iterazioni:**
+```
+Iterazione 1: p = 0x1000  →  *p = 10  →  stampa 10
+Iterazione 2: p = 0x1004  →  *p = 20  →  stampa 20
+Iterazione 3: p = 0x1008  →  *p = 30  →  stampa 30
+Iterazione 4: p = 0x100C  →  *p = 40  →  stampa 40
+Iterazione 5: p = 0x1010  →  *p = 50  →  stampa 50
+Iterazione 6: p = 0x1014  →  p >= arr+5  →  STOP
+```
+
+**Incremento automatico della dimensione:**
+```c
+printf("ptr: %p\n", (void*)ptr);        // 0x1000
+printf("ptr+1: %p\n", (void*)(ptr+1));  // 0x1004
+```
+
+**Spiegazione:**
+- `ptr` è di tipo `int*` (puntatore a int)
+- `int` è 4 byte su sistemi comuni
+- `ptr+1` avanza di 4 byte (1 elemento)
+- Se fosse `char*`, avanzerebbe di 1 byte
+- Se fosse `double*`, avanzerebbe di 8 byte
+
+**Calcolo della differenza:**
+```c
+printf("Differenza: %ld bytes\n", (char*)(ptr+1) - (char*)ptr);
+```
+
+**Spiegazione:**
+- Cast a `char*` per calcolare la differenza in byte
+- Senza cast: `(ptr+1) - ptr` darebbe 1 (1 elemento)
+- Con cast: `(char*)(ptr+1) - (char*)ptr` dà 4 (4 byte)
+
+**Sottrazione di puntatori:**
+```c
+int *start = arr;      // 0x1000
+int *end = arr + 4;    // 0x1010
+printf("Distanza: %ld elementi\n", end - start);  // 4
+```
+
+**Spiegazione:**
+- Sottrazione di puntatori restituisce il numero di elementi tra loro
+- `end - start` = (0x1010 - 0x1000) / sizeof(int) = 16 / 4 = 4 elementi
+- **NON** restituisce byte, ma numero di elementi!
+
+#### Esempio Pratico: Ricerca in Array con Puntatori
+
+```c
+#include <stdio.h>
+#include <stdbool.h>
+
+/* Cerca un valore nell'array usando puntatori
+ * Ritorna puntatore all'elemento se trovato, NULL altrimenti */
+int* ricerca_valore(int *arr, int size, int target)
+{
+    /* Calcola puntatore alla fine dell'array */
+    int *end = arr + size;
+    
+    /* Itera usando aritmetica dei puntatori */
+    for (int *p = arr; p < end; p++) {
+        if (*p == target) {
+            return p;  /* Ritorna puntatore all'elemento trovato */
+        }
+    }
+    
+    return NULL;  /* Non trovato */
+}
+
+int main(void)
+{
+    int numeri[] = {15, 42, 7, 23, 56, 91, 12};
+    int size = sizeof(numeri) / sizeof(numeri[0]);
+    int target = 23;
+    
+    /* Cerca il target */
+    int *risultato = ricerca_valore(numeri, size, target);
+    
+    if (risultato != NULL) {
+        /* Calcola l'indice usando sottrazione di puntatori */
+        int indice = risultato - numeri;
+        
+        printf("Valore %d trovato!\n", target);
+        printf("Indirizzo: %p\n", (void*)risultato);
+        printf("Indice: %d\n", indice);
+        printf("Verifica: numeri[%d] = %d\n", indice, numeri[indice]);
+    } else {
+        printf("Valore %d non trovato\n", target);
+    }
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Valore 23 trovato!
+Indirizzo: 0x7fff1234560c
+Indice: 3
+Verifica: numeri[3] = 23
+```
+
+**Analisi passo-passo:**
+
+1. **`int *end = arr + size;`**
+   - Calcola puntatore "oltre" l'ultimo elemento
+   - `end` punta a `arr[7]` (fuori dai limiti, ma non dereferenziato)
+
+2. **Loop `for (int *p = arr; p < end; p++)`:**
+   - `p` parte da `arr[0]`
+   - Continua finché `p` è prima di `end`
+   - `p++` avanza al prossimo elemento
+
+3. **`if (*p == target)`:**
+   - Dereferenzia `p` e confronta con `target`
+   - Se uguale, ritorna `p` (puntatore all'elemento)
+
+4. **`int indice = risultato - numeri;`:**
+   - Sottrazione di puntatori
+   - Calcola la distanza in elementi
+   - `risultato` punta a `numeri[3]`
+   - `risultato - numeri` = 3
+
+#### Operazioni Valide e Non Valide
+
+**✅ Operazioni VALIDE:**
+```c
+int arr[5];
+int *p = arr;
+
+p + 3;        // Avanza di 3 elementi
+p - 2;        // Indietro di 2 elementi
+p++;          // Avanza di 1 elemento
+p--;          // Indietro di 1 elemento
+p += 2;       // Avanza di 2 elementi
+p -= 1;       // Indietro di 1 elemento
+
+int *q = arr + 2;
+q - p;        // Differenza in elementi
+p < q;        // Confronto di puntatori
+p == q;       // Uguaglianza
+```
+
+**❌ Operazioni NON VALIDE:**
+```c
+p + q;        // ERRORE: non puoi sommare due puntatori
+p * 2;        // ERRORE: non puoi moltiplicare puntatori
+p / 2;        // ERRORE: non puoi dividere puntatori
+```
+
+#### Confronto: Notazione Array vs Puntatori
+
+**Equivalenza completa:**
+```c
+int arr[5] = {1, 2, 3, 4, 5};
+
+/* Queste sono tutte equivalenti: */
+arr[i]          // Notazione array
+*(arr + i)      // Notazione puntatore
+*(i + arr)      // Anche questo funziona! (commutativo)
+i[arr]          // Sorprendente ma valido! (non usare)
+```
+
+**Esempio di preferenza:**
+```c
+/* Quando usare array notation */
+int x = arr[i];              // Chiaro e leggibile
+
+/* Quando usare pointer notation */
+for (int *p = arr; p < arr + size; p++) {
+    process(*p);             // Efficiente per iterazione
+}
+```
+
+**Compilazione e test:**
+```bash
+gcc -Wall -Wextra aritmetica_puntatori.c -o aritmetica
+./aritmetica
 ```
 
 ### Puntatori e Array
@@ -187,7 +673,57 @@ int main(void)
 
 ## Allocazione Dinamica della Memoria
 
+L'allocazione dinamica permette di creare variabili e array la cui dimensione può essere decisa a runtime, non a compile-time.
+
+### Stack vs Heap
+
+**Stack (allocazione automatica):**
+```c
+int x = 10;              // Stack
+int arr[100];            // Stack - dimensione fissa
+```
+- **Dimensione**: Fissa a compile-time
+- **Durata**: Variabile distrutta quando esci dallo scope
+- **Gestione**: Automatica
+- **Velocità**: Molto veloce
+- **Dimensione limitata**: Tipicamente 1-8 MB
+
+**Heap (allocazione dinamica):**
+```c
+int *ptr = malloc(sizeof(int));        // Heap
+int *arr = malloc(100 * sizeof(int));  // Heap - dimensione variabile
+```
+- **Dimensione**: Decisa a runtime
+- **Durata**: Vive finché non chiami `free()`
+- **Gestione**: Manuale (devi liberare la memoria!)
+- **Velocità**: Più lenta dello stack
+- **Dimensione**: Limitata solo dalla RAM disponibile
+
+**Diagramma Stack vs Heap:**
+```
+Memoria del Processo:
+┌─────────────────┐
+│   Code          │  ← Codice del programma
+├─────────────────┤
+│   Static Data   │  ← Variabili globali/static
+├─────────────────┤
+│   Heap →        │  ← Cresce verso il basso
+│   (malloc)      │     Allocazione dinamica
+│                 │
+│   ↓ (libero) ↑  │
+│                 │
+│   (Stack)       │  ← Cresce verso l'alto
+│   ← Stack       │     Variabili locali
+└─────────────────┘
+```
+
 ### malloc, calloc, realloc, free
+
+**Funzioni principali:**
+- `malloc()`: Alloca memoria NON inizializzata
+- `calloc()`: Alloca memoria inizializzata a ZERO
+- `realloc()`: Ridimensiona memoria già allocata
+- `free()`: Libera memoria allocata
 
 ```c
 #include <stdio.h>
@@ -246,6 +782,334 @@ int main(void)
     
     return 0;
 }
+```
+
+#### Spiegazione Dettagliata delle Funzioni
+
+**`malloc()` - Memory Allocation**
+
+**Sintassi:**
+```c
+void* malloc(size_t size);
+```
+
+**Parametri:**
+- `size`: Numero di byte da allocare
+
+**Ritorna:**
+- Puntatore alla memoria allocata (tipo `void*`)
+- `NULL` se l'allocazione fallisce
+
+**Esempio annotato:**
+```c
+int *arr = (int*)malloc(5 * sizeof(int));
+```
+
+**Analisi passo-passo:**
+1. `sizeof(int)`: Calcola dimensione di un int (tipicamente 4 byte)
+2. `5 * sizeof(int)`: Calcola byte totali necessari (5 × 4 = 20 byte)
+3. `malloc(20)`: Alloca 20 byte contigui nell'heap
+4. Ritorna `void*` (puntatore generico)
+5. `(int*)`: Cast a puntatore a int (obbligatorio in C++)
+6. `arr`: Riceve l'indirizzo del primo byte allocato
+
+**Memoria allocata:**
+```
+Heap:
+┌────┬────┬────┬────┬────┐
+│ ?? │ ?? │ ?? │ ?? │ ?? │  ← 5 interi NON inizializzati
+└────┴────┴────┴────┴────┘
+ arr  [0]  [1]  [2]  [3]  [4]
+```
+
+**⚠️ IMPORTANTE: Controllare sempre NULL!**
+```c
+int *arr = (int*)malloc(5 * sizeof(int));
+if (arr == NULL) {
+    fprintf(stderr, "Errore: memoria insufficiente\n");
+    return 1;
+}
+```
+
+**Quando malloc può fallire:**
+- Memoria insufficiente
+- Frammentazione della memoria
+- Sistema sotto stress
+- Limite del processo raggiunto
+
+**`calloc()` - Contiguous Allocation**
+
+**Sintassi:**
+```c
+void* calloc(size_t num, size_t size);
+```
+
+**Parametri:**
+- `num`: Numero di elementi
+- `size`: Dimensione di ogni elemento
+
+**Ritorna:**
+- Puntatore alla memoria allocata E INIZIALIZZATA A ZERO
+- `NULL` se fallisce
+
+**Esempio annotato:**
+```c
+int *arr = (int*)calloc(5, sizeof(int));
+```
+
+**Differenza con malloc:**
+- `malloc(5 * sizeof(int))`: Memoria NON inizializzata (valori casuali)
+- `calloc(5, sizeof(int))`: Memoria inizializzata a ZERO
+
+**Memoria allocata:**
+```
+Heap:
+┌────┬────┬────┬────┬────┐
+│  0 │  0 │  0 │  0 │  0 │  ← Tutti inizializzati a 0!
+└────┴────┴────┴────┴────┘
+```
+
+**Quando usare calloc:**
+- Array di struct che devono essere inizializzate
+- Array di puntatori (inizializzati a NULL)
+- Quando zero è un valore valido di default
+- Per sicurezza (evita valori garbage)
+
+**Prestazioni:**
+- `calloc` è leggermente più lento di `malloc` (deve azzerare)
+- Differenza trascurabile per array piccoli
+- Può essere più efficiente per array molto grandi (ottimizzazioni OS)
+
+**`realloc()` - Reallocate Memory**
+
+**Sintassi:**
+```c
+void* realloc(void *ptr, size_t new_size);
+```
+
+**Parametri:**
+- `ptr`: Puntatore alla memoria da ridimensionare (o NULL)
+- `new_size`: Nuova dimensione in byte
+
+**Ritorna:**
+- Puntatore alla memoria ridimensionata
+- Può essere DIVERSO dal puntatore originale!
+- `NULL` se fallisce (ma memoria originale rimane valida)
+
+**Esempio annotato:**
+```c
+int *arr = (int*)malloc(5 * sizeof(int));
+// ... uso arr ...
+arr = (int*)realloc(arr, 10 * sizeof(int));
+```
+
+**Cosa succede internamente:**
+
+**Caso 1: Espansione con spazio disponibile**
+```
+Prima:
+┌────┬────┬────┬────┬────┐
+│ 10 │ 20 │ 30 │ 40 │ 50 │ [spazio libero...]
+└────┴────┴────┴────┴────┘
+ arr
+
+Dopo realloc(arr, 10*sizeof(int)):
+┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┐
+│ 10 │ 20 │ 30 │ 40 │ 50 │ ?? │ ?? │ ?? │ ?? │ ?? │
+└────┴────┴────┴────┴────┴────┴────┴────┴────┴────┘
+ arr (stesso indirizzo)
+```
+
+**Caso 2: Espansione senza spazio (deve spostare)**
+```
+Prima:
+┌────┬────┬────┬────┬────┐ [occupato...]
+│ 10 │ 20 │ 30 │ 40 │ 50 │
+└────┴────┴────┴────┴────┘
+ arr @ 0x1000
+
+Dopo realloc:
+1. Alloca nuovo blocco da 10 elementi @ 0x2000
+2. Copia i primi 5 elementi dal vecchio al nuovo
+3. Libera il vecchio blocco @ 0x1000
+4. Ritorna nuovo indirizzo @ 0x2000
+
+┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┐
+│ 10 │ 20 │ 30 │ 40 │ 50 │ ?? │ ?? │ ?? │ ?? │ ?? │
+└────┴────┴────┴────┴────┴────┴────┴────┴────┴────┘
+ arr @ 0x2000 (NUOVO indirizzo!)
+```
+
+**⚠️ PERICOLO: Gestione errori di realloc**
+
+**SBAGLIATO:**
+```c
+arr = (int*)realloc(arr, new_size);
+if (arr == NULL) {
+    // PROBLEMA: hai perso il puntatore originale!
+}
+```
+
+**CORRETTO:**
+```c
+int *temp = (int*)realloc(arr, new_size);
+if (temp == NULL) {
+    // arr è ancora valido, puoi usarlo o liberarlo
+    fprintf(stderr, "Errore: realloc fallita\n");
+    free(arr);  // Libera la memoria originale
+    return 1;
+} else {
+    arr = temp;  // Aggiorna arr solo se successo
+}
+```
+
+**Casi speciali di realloc:**
+```c
+// Se ptr è NULL, equivale a malloc
+int *arr = (int*)realloc(NULL, 10 * sizeof(int));
+// Equivalente a: malloc(10 * sizeof(int))
+
+// Se new_size è 0, equivale a free (non portabile!)
+realloc(arr, 0);
+// Meglio usare: free(arr); arr = NULL;
+```
+
+**`free()` - Free Memory**
+
+**Sintassi:**
+```c
+void free(void *ptr);
+```
+
+**Parametri:**
+- `ptr`: Puntatore alla memoria da liberare
+
+**Esempio annotato:**
+```c
+int *arr = (int*)malloc(5 * sizeof(int));
+// ... uso arr ...
+free(arr);        // Libera la memoria
+arr = NULL;       // Buona pratica: previene dangling pointer
+```
+
+**Cosa fa free:**
+1. Marca il blocco di memoria come disponibile
+2. **NON** azzera la memoria
+3. **NON** cambia il valore del puntatore
+
+**Diagramma:**
+```
+Prima di free(arr):
+Heap:
+┌────┬────┬────┬────┬────┐
+│ 10 │ 20 │ 30 │ 40 │ 50 │  ← Memoria allocata
+└────┴────┴────┴────┴────┘
+ ↑
+ arr punta qui
+
+Dopo free(arr):
+Heap:
+┌────┬────┬────┬────┬────┐
+│ ?? │ ?? │ ?? │ ?? │ ?? │  ← Memoria libera (ma dati ancora presenti!)
+└────┴────┴────┴────┴────┘
+ ↑
+ arr ANCORA punta qui (DANGLING POINTER!)
+
+Dopo arr = NULL:
+Heap:
+┌────┬────┬────┬────┬────┐
+│ ?? │ ?? │ ?? │ ?? │ ?? │  ← Memoria libera
+└────┴────┴────┴────┴────┘
+
+arr = NULL  ← Sicuro: non punta più a memoria invalida
+```
+
+**Regole di free:**
+1. **Mai** fare free di memoria non allocata con malloc/calloc/realloc
+2. **Mai** fare free della stessa memoria due volte
+3. **Mai** usare memoria dopo averla liberata
+4. **Sempre** settare il puntatore a NULL dopo free
+
+#### Esempio Completo: Array Dinamico che Cresce
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void)
+{
+    int capacita = 5;
+    int dimensione = 0;
+    int *arr = (int*)malloc(capacita * sizeof(int));
+    
+    if (arr == NULL) {
+        fprintf(stderr, "Errore: allocazione fallita\n");
+        return 1;
+    }
+    
+    printf("Capacità iniziale: %d\n", capacita);
+    
+    /* Aggiungi 10 numeri all'array */
+    for (int i = 0; i < 10; i++) {
+        /* Se array pieno, raddoppia la capacità */
+        if (dimensione >= capacita) {
+            capacita *= 2;
+            printf("Espando array a capacità %d\n", capacita);
+            
+            int *temp = (int*)realloc(arr, capacita * sizeof(int));
+            if (temp == NULL) {
+                fprintf(stderr, "Errore: realloc fallita\n");
+                free(arr);
+                return 1;
+            }
+            arr = temp;
+        }
+        
+        /* Aggiungi elemento */
+        arr[dimensione] = i * 10;
+        dimensione++;
+        printf("Aggiunto %d (dimensione: %d/%d)\n", 
+               arr[dimensione-1], dimensione, capacita);
+    }
+    
+    /* Stampa array finale */
+    printf("\nArray finale:\n");
+    for (int i = 0; i < dimensione; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+    
+    /* Libera memoria */
+    free(arr);
+    arr = NULL;
+    
+    return 0;
+}
+```
+
+**Output:**
+```
+Capacità iniziale: 5
+Aggiunto 0 (dimensione: 1/5)
+Aggiunto 10 (dimensione: 2/5)
+Aggiunto 20 (dimensione: 3/5)
+Aggiunto 30 (dimensione: 4/5)
+Aggiunto 40 (dimensione: 5/5)
+Espando array a capacità 10
+Aggiunto 50 (dimensione: 6/10)
+Aggiunto 60 (dimensione: 7/10)
+Aggiunto 70 (dimensione: 8/10)
+Aggiunto 80 (dimensione: 9/10)
+Aggiunto 90 (dimensione: 10/10)
+
+Array finale:
+0 10 20 30 40 50 60 70 80 90
+```
+
+**Compilazione e test:**
+```bash
+gcc -Wall -Wextra allocazione_dinamica.c -o allocazione
+./allocazione
 ```
 
 ### Memory Leaks e Dangling Pointers
