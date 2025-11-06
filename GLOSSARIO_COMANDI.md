@@ -1410,4 +1410,4 @@ gcc -save-temps programma.c -o programma
 
 ---
 
-[← Torna al Sommario](README.md)
+[← Torna alla Home](README.md)

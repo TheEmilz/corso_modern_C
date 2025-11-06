@@ -171,10 +171,10 @@ int main(void)
 {
     /* Overflow con char signed */
     int8_t piccolo = 127;
-    printf("Valore iniziale: %d\n", piccolo);
+    printf("Valore iniziale: %d\n", (int)piccolo);  // Cast a int per portabilità
     
     piccolo = piccolo + 1;  // Overflow!
-    printf("Dopo +1: %d\n", piccolo);  // -128 (wrap around!)
+    printf("Dopo +1: %d\n", (int)piccolo);  // -128 (wrap around!)
     
     /* Overflow con unsigned */
     uint8_t senza_segno = 255;

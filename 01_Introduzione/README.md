@@ -558,7 +558,7 @@ int main(void)
 {
     int x = 10;
     int y = 0;
-    int risultato = x / y;  // BUG: divisione per zero!
+    int risultato = x / y;  // INTENTIONAL BUG: divisione per zero (per dimostrazione debug)!
     
     printf("Risultato: %d\n", risultato);
     return 0;

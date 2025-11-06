@@ -473,7 +473,8 @@ ptr3++;        // ❌ ERRORE: non puoi muovere il puntatore
 
 **Uso tipico: Costanti immutabili**
 ```c
-const int *const DAYS_IN_WEEK = &(int){7};
+const int DAYS_VALUE = 7;
+const int *const DAYS_IN_WEEK = &DAYS_VALUE;
 
 void func(const char *const message)
 {
