@@ -37,6 +37,16 @@ Benvenuti al corso completo di programmazione C, che copre dalla teoria di base 
 - Esempi pratici completi e commentati
 - Esercizi con soluzioni step-by-step
 
+### [02.5 - Il Modello Mentale della Memoria](02.5_Modello_Memoria/)
+**NUOVO! Modulo avanzato per sviluppare visualizzazione profonda della memoria**
+- Stack vs Heap: anatomia completa con stack frames
+- Allineamento e Padding: ottimizzazione struct e cache line
+- Endianness: Little-Endian vs Big-Endian, rappresentazione binaria
+- Segmenti di Memoria: .text, .data, .bss, .rodata, protezioni
+- **Visualizzazioni ASCII dettagliate** di ogni concetto
+- **Tools pratici**: gdb, valgrind, objdump, readelf
+- **Obiettivo**: Sviluppare il "sesto senso della memoria"
+
 ### [03 - Livello Intermedio](03_Intermedio/)
 - Puntatori e riferimenti
 - Allocazione dinamica della memoria
@@ -44,6 +54,17 @@ Benvenuti al corso completo di programmazione C, che copre dalla teoria di base 
 - Typedef ed enum
 - Preprocessore
 - File I/O
+
+### [03.5 - Undefined Behavior: Il Nemico Invisibile](03.5_Undefined_Behavior/)
+**NUOVO! Guida completa per evitare comportamenti indefiniti**
+- Catalogo completo: 10+ tipi di UB comuni in C
+- Buffer Overflow, Use-After-Free, NULL Dereference
+- Signed Integer Overflow, Uninitialized Variables
+- Sequence Point Violations, Division by Zero
+- Strict Aliasing, Data Races, e altro
+- **Detection**: AddressSanitizer, UBSan, Valgrind, TSan
+- **Prevenzione**: Best practices e pattern difensivi
+- **Tools**: Compiler warnings, static analysis
 
 ### [04 - Livello Avanzato](04_Avanzato/)
 - Puntatori avanzati (puntatori a funzioni, array di puntatori)
