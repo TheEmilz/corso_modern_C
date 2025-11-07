@@ -52,6 +52,7 @@ Benvenuti al corso completo di programmazione C, che copre dalla teoria di base 
 - Gestione errori avanzata
 - Multi-threading (pthreads)
 - Gestione memoria avanzata
+- **NUOVO! [Fil-C Compiler](04_Avanzato/fil_c_compiler.md)**: Memory safety, garbage collection, capabilities
 
 ### [05 - Assembly e Low-Level](05_Assembly_LowLevel/)
 - Relazione tra C e Assembly

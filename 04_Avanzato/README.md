@@ -1699,6 +1699,32 @@ int main(void)
 }
 ```
 
+## Fil-C: Compilatore per Memory Safety
+
+### [Modulo Speciale: Fil-C Compiler](fil_c_compiler.md)
+
+**NUOVO MODULO AVANZATO!** Approfondimento completo sul compilatore Fil-C che garantisce memory safety per C/C++:
+
+#### Contenuti del Modulo:
+- **Architettura di Fil-C**: Sistema completo basato su LLVM
+- **InvisiCaps e MonoCaps**: Modelli di capabilities invisibili e a 128-bit
+- **FUGC Garbage Collector**: Collezione concorrente e parallela della memoria
+- **Memory Safety**: Teoria e implementazione di spatial, temporal e type safety
+- **Estrazione dei Puntatori**: Tecniche avanzate di tracking e gestione
+- **15+ Paper Accademici**: Riferimenti a ricerca su GC, capabilities e memory safety
+- **Link e Risorse**: Documentazione, repository GitHub, conference talks
+
+**Tematiche Trattate:**
+- Garbage collection concorrente con algoritmi di Dijkstra
+- Capability-based security e confronto con CHERI
+- Paper su SoftBound, CETS, Cyclone e altri sistemi di safety
+- Performance analysis e compatibilità con codebases esistenti
+- Write barriers, shadow memory e tecniche di ottimizzazione
+
+[→ Vai al Modulo Fil-C](fil_c_compiler.md)
+
+---
+
 ## Esercizi
 
 1. Implementa un hash table thread-safe
